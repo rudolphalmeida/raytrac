@@ -6,7 +6,6 @@ use ray::Ray;
 use cgmath::dot;
 use cgmath::prelude::*;
 use cgmath::Point3;
-use cgmath::Vector3;
 
 #[derive(Debug, Copy, Clone)]
 pub struct Sphere {
@@ -26,7 +25,7 @@ impl Sphere {
 }
 
 impl Hittable for Sphere {
-    fn hits(&self, ray: &Ray, t_min: f64, t_max: f64, point: Vector3<f64>) -> Option<HitRecord> {
+    fn hits(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let oc = ray.origin - self.center;
         let a = ray.direction.dot(ray.direction);
         let b = 2.0 * dot(oc, ray.direction);
@@ -36,7 +35,7 @@ impl Hittable for Sphere {
             let t = (-b - discriminant.sqrt()) / (2.0 * a);
             if t < t_max && t > t_min {
                 let p = ray.point_at(t);
-                let normal = (point - self.center.to_vec()) / self.radius;
+                let normal = (p - self.center.to_vec()) / self.radius;
                 let material = self.material;
                 return Some(HitRecord::new(t, p, normal, material));
             }
@@ -44,7 +43,7 @@ impl Hittable for Sphere {
             let t = (-b + discriminant.sqrt()) / (2.0 * a);
             if t < t_max && t > t_min {
                 let p = ray.point_at(t);
-                let normal = (point - self.center.to_vec()) / self.radius;
+                let normal = (p - self.center.to_vec()) / self.radius;
                 let material = self.material;
                 return Some(HitRecord::new(t, p, normal, material));
             }

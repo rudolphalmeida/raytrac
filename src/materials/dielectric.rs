@@ -25,7 +25,7 @@ impl Scatterable for Dielectric {
     fn scatter(&self, ray: &Ray, rec: &HitRecord) -> Option<(Ray, Vector3<f64>)> {
         let reflected = super::reflect(ray.direction.normalize(), rec.normal);
         let attenuation = vec3::<f64>(1.0, 1.0, 1.0);
-        let refracted = Vector3::new(0.0, 0.0, 0.0);
+        let mut refracted = Vector3::new(0.0, 0.0, 0.0);
         let reflect_prob: f64;
 
         let (outward_normal, ni_over_nt, cosine) = if dot(ray.direction, rec.normal) > 0.0 {
@@ -38,13 +38,12 @@ impl Scatterable for Dielectric {
             (
                 rec.normal,
                 1.0 / self.refractive_index,
-                // Find if this is (-ray). or -(ray.)
-                // -ray.direction.dot(&rec.normal) / ray.direction.length(),
-                -dot(ray.direction, rec.normal) / ray.direction.magnitude(),
+                -1.0 * ray.direction.dot(rec.normal) / ray.direction.magnitude(),
             )
         };
 
-        if refract(ray.direction, outward_normal, ni_over_nt).is_some() {
+        if let Some(r) = refract(ray.direction, outward_normal, ni_over_nt) {
+            refracted = r;
             reflect_prob = schlick(cosine, self.refractive_index);
         } else {
             reflect_prob = 1.0;

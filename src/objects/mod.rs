@@ -2,7 +2,6 @@ pub mod camera;
 pub mod sphere;
 
 use self::sphere::Sphere;
-use materials::lambertian::Lambertian;
 use materials::Material;
 use ray::Ray;
 
@@ -11,10 +10,8 @@ use cgmath::vec3;
 use cgmath::Vector3;
 use rand::prelude::*;
 
-use std::default::Default;
-
 pub trait Hittable: Send + Sync {
-    fn hits(&self, ray: &Ray, t_min: f64, t_max: f64, p: Vector3<f64>) -> Option<HitRecord>;
+    fn hits(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -33,17 +30,6 @@ impl HitRecord {
             normal,
             material,
         }
-    }
-}
-
-impl Default for HitRecord {
-    fn default() -> Self {
-        Self::new(
-            0.0,
-            Vector3::new(0.0, 0.0, 0.0),
-            Vector3::new(0.0, 0.0, 0.0),
-            Material::Lambertian(Lambertian::new(Vector3::new(0.0, 0.0, 0.0))),
-        )
     }
 }
 
@@ -67,22 +53,15 @@ impl HittableList {
     }
 }
 
-impl Default for HittableList {
-    fn default() -> Self {
-        Self::new()
-    }
-}
-
 impl Hittable for HittableList {
-    fn hits(&self, ray: &Ray, t_min: f64, t_max: f64, _p: Vector3<f64>) -> Option<HitRecord> {
+    fn hits(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
         let mut hit_anything = None;
         let mut closest_so_far = t_max;
 
         for sphere in &self.spheres {
-            if let Some(hit) = sphere.hits(ray, t_min, closest_so_far, Vector3::new(0.0, 0.0, 0.0))
-            {
+            if let Some(hit) = sphere.hits(ray, t_min, closest_so_far) {
                 closest_so_far = hit.t;
-                hit_anything = Some(HitRecord::new(hit.t, hit.p, hit.normal, hit.material));
+                hit_anything = Some(hit);
             }
         }
 

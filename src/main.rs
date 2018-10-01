@@ -35,8 +35,8 @@ fn main() {
     let ns: u64 = 100;
 
     let cam: Camera = Camera::new(
-        Point3::new(10.0, 1.0, -10.0),
-        Point3::new(0.0, 1.0, 0.0),
+        Point3::new(13.0, 2.0, 3.0),
+        Point3::new(0.0, 0.0, 0.0),
         Vector3::new(0.0, 1.0, 0.0),
         20.0,
         f64::from(nx) / f64::from(ny),
@@ -61,11 +61,11 @@ fn main() {
                     let mut color_vector = Vector3::new(0.0, 0.0, 0.0);
                     for _s in 0..ns {
                         let u: f64 = (f64::from(x) + rand::random::<f64>()) / f64::from(nx);
-                        let v: f64 = (f64::from(y) + rand::random::<f64>()) / f64::from(ny);
+                        let v: f64 = (y + rand::random::<f64>()) / f64::from(ny);
                         let r: Ray = cam.get_ray(u, v);
-                        color_vector = color_vector + lerp(&r, &world, 10);
+                        color_vector += lerp(&r, &world, 0);
                     }
-                    color_vector = color_vector / ns as f64;
+                    color_vector /= ns as f64;
                     color_vector = color_vector.map(|x| x.sqrt()) * 255.99;
                     color_vector
                 }).collect();
@@ -79,7 +79,7 @@ fn main() {
 }
 
 fn lerp(ray: &Ray, world: &Hittable, depth: i32) -> Vector3<f64> {
-    if let Some(hit) = world.hits(ray, 0.001, f64::MAX, Vector3::new(0.0, 0.0, 0.0)) {
+    if let Some(hit) = world.hits(ray, 0.001, f64::MAX) {
         if depth < 50 {
             if let Some((scattered, attenuation)) = hit.material.scatter(ray, &hit) {
                 let color = lerp(&scattered, world, depth + 1);

@@ -1,0 +1,11 @@
+[package]
+name = "raytrac"
+version = "0.1.0"
+authors = ["Rudolph Almeida <rudolf1.almeida@gmail.com>"]
+
+[dependencies]
+cgmath = "*"
+image = "*"
+indicatif = "*"
+rand = "*"
+rayon = "*"

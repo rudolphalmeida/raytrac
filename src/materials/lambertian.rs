@@ -26,9 +26,9 @@ impl Lambertian {
 }
 
 impl Scatterable for Lambertian {
-    fn scatter(&self, _ray: &Ray, rec: &HitRecord) -> Option<(Ray, Vector3<f64>)> {
+    fn scatter(&self, ray: &Ray, rec: &HitRecord) -> Option<(Ray, Vector3<f64>)> {
         let target = rec.p + rec.normal + point_in_unit_sphere();
-        let scattered = Ray::from(Point3::from_vec(rec.p), target - rec.p);
+        let scattered = Ray::from(Point3::from_vec(rec.p), target - rec.p, ray.time);
         let attenuation = self.albedo;
 
         Some((scattered, attenuation))

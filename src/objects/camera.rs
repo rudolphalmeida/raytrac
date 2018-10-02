@@ -3,6 +3,7 @@ use ray::Ray;
 use cgmath::prelude::*;
 use cgmath::Point3;
 use cgmath::Vector3;
+use rand::prelude::*;
 
 use std::f64::consts::PI;
 
@@ -16,6 +17,8 @@ pub struct Camera {
     pub v: Vector3<f64>,
     pub w: Vector3<f64>,
     pub lens_radius: f64,
+    pub time0: f64,
+    pub time1: f64,
 }
 
 impl Camera {
@@ -27,6 +30,8 @@ impl Camera {
         aspect: f64,
         aperture: f64,
         focus_dist: f64,
+        time0: f64,
+        time1: f64,
     ) -> Camera {
         let lens_radius = aperture / 2.0;
         let theta = vfov * PI / 180.0;
@@ -48,15 +53,21 @@ impl Camera {
             u,
             v,
             w,
+            time0,
+            time1,
         }
     }
 
     pub fn get_ray(&self, s: f64, t: f64) -> Ray {
+        let mut rng = thread_rng();
+
         let rd = super::random_in_unit_disk() * self.lens_radius;
         let offset = self.u * rd.x + self.v * rd.y;
+        let time = self.time0 + rng.gen::<f64>() * (self.time1 - self.time0);
         Ray::from(
             self.origin + offset,
             self.lower_left_corner + s * self.horizontal + t * self.vertical - self.origin - offset,
+            time,
         )
     }
 }

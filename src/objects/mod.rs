@@ -1,7 +1,7 @@
 pub mod camera;
+pub mod moving_sphere;
 pub mod sphere;
 
-use self::sphere::Sphere;
 use materials::Material;
 use ray::Ray;
 
@@ -34,22 +34,22 @@ impl HitRecord {
 }
 
 pub struct HittableList {
-    spheres: Vec<Box<Hittable>>,
+    objects: Vec<Box<Hittable>>,
 }
 
 impl HittableList {
     pub fn new() -> HittableList {
         HittableList {
-            spheres: Vec::new(),
+            objects: Vec::new(),
         }
     }
 
-    pub fn add(&mut self, sphere: Sphere) {
-        self.spheres.push(Box::new(sphere));
+    pub fn add(&mut self, object: Box<Hittable>) {
+        self.objects.push(object);
     }
 
     pub fn size(&self) -> usize {
-        self.spheres.len()
+        self.objects.len()
     }
 }
 
@@ -58,7 +58,7 @@ impl Hittable for HittableList {
         let mut hit_anything = None;
         let mut closest_so_far = t_max;
 
-        for sphere in &self.spheres {
+        for sphere in &self.objects {
             if let Some(hit) = sphere.hits(ray, t_min, closest_so_far) {
                 closest_so_far = hit.t;
                 hit_anything = Some(hit);

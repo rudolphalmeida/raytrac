@@ -14,6 +14,7 @@ use materials::metal::Metal;
 use materials::Material;
 use materials::Scatterable;
 use objects::camera::Camera;
+use objects::moving_sphere::Moving_Sphere;
 use objects::sphere::Sphere;
 use objects::{Hittable, HittableList};
 use ray::Ray;
@@ -28,11 +29,11 @@ use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use std::f64;
 
 fn main() {
-    let filename = "output/sample.png";
+    let filename = "output/motion_blur.png";
 
-    let nx: i16 = 200;
-    let ny: i16 = 100;
-    let ns: u64 = 100;
+    let nx: i16 = 600;
+    let ny: i16 = 400;
+    let ns: u64 = 200;
 
     let cam: Camera = Camera::new(
         Point3::new(13.0, 2.0, 3.0),
@@ -42,6 +43,8 @@ fn main() {
         f64::from(nx) / f64::from(ny),
         0.1,
         10.0,
+        0.0,
+        1.0,
     );
 
     let world: HittableList = random_scene();
@@ -105,11 +108,11 @@ fn random_scene() -> HittableList {
     let mut rng = rand::thread_rng();
 
     let mut list: HittableList = HittableList::new();
-    list.add(Sphere::from(
+    list.add(Box::new(Sphere::from(
         Point3::new(0.0, -1000.0, 0.0),
         1000.0,
         Material::Lambertian(Lambertian::new(Vector3::new(0.5, 0.5, 0.5))),
-    ));
+    )));
 
     for a in -11..11 {
         for b in -11..11 {
@@ -122,18 +125,21 @@ fn random_scene() -> HittableList {
             if (center - Vector3::new(4.0, 0.2, 0.0)).to_vec().magnitude() > 0.9 {
                 if choose_mat < 0.8 {
                     // diffuse
-                    list.add(Sphere::from(
+                    list.add(Box::new(Moving_Sphere::from(
                         center,
+                        center + Vector3::new(0.0, 0.5 * rng.gen::<f64>(), 0.0),
+                        0.0,
+                        1.0,
                         0.2,
                         Material::Lambertian(Lambertian::new(Vector3::new(
                             rng.gen::<f64>() * rng.gen::<f64>(),
                             rng.gen::<f64>() * rng.gen::<f64>(),
                             rng.gen::<f64>() * rng.gen::<f64>(),
                         ))),
-                    ));
+                    )));
                 } else if choose_mat < 0.95 {
                     //metal
-                    list.add(Sphere::from(
+                    list.add(Box::new(Sphere::from(
                         center,
                         0.2,
                         Material::Metal(Metal::new(
@@ -144,32 +150,32 @@ fn random_scene() -> HittableList {
                             ),
                             0.5 * rng.gen::<f64>(),
                         )),
-                    ));
+                    )));
                 } else {
                     // dielectric
-                    list.add(Sphere::from(
+                    list.add(Box::new(Sphere::from(
                         center,
                         0.2,
                         Material::Dielectric(Dielectric::from(1.5)),
-                    ));
+                    )));
                 }
             }
 
-            list.add(Sphere::from(
+            list.add(Box::new(Sphere::from(
                 Point3::new(0.0, 1.0, 0.0),
                 1.0,
                 Material::Dielectric(Dielectric::from(1.5)),
-            ));
-            list.add(Sphere::from(
+            )));
+            list.add(Box::new(Sphere::from(
                 Point3::new(-4.0, 1.0, 0.0),
                 1.0,
                 Material::Lambertian(Lambertian::new(Vector3::new(0.4, 0.4, 0.1))),
-            ));
-            list.add(Sphere::from(
+            )));
+            list.add(Box::new(Sphere::from(
                 Point3::new(4.0, 1.0, 0.0),
                 1.0,
                 Material::Metal(Metal::new(Vector3::new(0.7, 0.6, 0.5), 0.0)),
-            ));
+            )));
         }
     }
 

@@ -52,9 +52,9 @@ impl Scatterable for Dielectric {
         let scattered;
         let mut rng = thread_rng();
         if rng.gen::<f64>() < reflect_prob {
-            scattered = Ray::from(Point3::from_vec(rec.p), reflected);
+            scattered = Ray::from(Point3::from_vec(rec.p), reflected, ray.time);
         } else {
-            scattered = Ray::from(Point3::from_vec(rec.p), refracted);
+            scattered = Ray::from(Point3::from_vec(rec.p), refracted, ray.time);
         }
 
         Some((scattered, attenuation))

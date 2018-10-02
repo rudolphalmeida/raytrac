@@ -37,6 +37,7 @@ impl Scatterable for Metal {
         let scattered = Ray::from(
             Point3::from_vec(rec.p),
             reflected + point_in_unit_sphere() * self.fuzz,
+            ray.time,
         );
         let attenuation = self.albedo;
 

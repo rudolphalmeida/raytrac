@@ -10,7 +10,7 @@ use self::lambertian::Lambertian;
 use self::metal::Metal;
 
 use cgmath::dot;
-use cgmath::vec3;
+use cgmath::InnerSpace;
 use cgmath::Vector3;
 use rand::prelude::*;
 
@@ -36,14 +36,11 @@ impl Scatterable for Material {
 }
 
 fn point_in_unit_sphere() -> Vector3<f64> {
-    let mut rng = thread_rng();
-    let mut p = vec3::<f64>(2.0, 2.0, 2.0);
-    while dot(p, p) >= 1.0 {
-        p = 2.0 * vec3::<f64>(rng.gen::<f64>(), rng.gen::<f64>(), rng.gen::<f64>())
-            - vec3::<f64>(1.0, 1.0, 1.0);
-    }
-
-    p
+    Vector3::new(
+        2.0 * random::<f64>() - 1.0,
+        2.0 * random::<f64>() - 1.0,
+        2.0 * random::<f64>() - 1.0,
+    ).normalize()
 }
 
 fn reflect(v: Vector3<f64>, n: Vector3<f64>) -> Vector3<f64> {

@@ -34,18 +34,18 @@ impl Hittable for Sphere {
         if discriminant > 0.0 {
             let t = (-b - discriminant.sqrt()) / (2.0 * a);
             if t < t_max && t > t_min {
-                let p = ray.point_at(t);
-                let normal = (p - self.center.to_vec()) / self.radius;
+                let point = ray.point_at(t);
+                let normal = (point - self.center.to_vec()) / self.radius;
                 let material = self.material;
-                return Some(HitRecord::new(t, p, normal, material));
+                return Some(HitRecord::new(t, point, normal, material));
             }
 
             let t = (-b + discriminant.sqrt()) / (2.0 * a);
             if t < t_max && t > t_min {
-                let p = ray.point_at(t);
-                let normal = (p - self.center.to_vec()) / self.radius;
+                let point = ray.point_at(t);
+                let normal = (point - self.center.to_vec()) / self.radius;
                 let material = self.material;
-                return Some(HitRecord::new(t, p, normal, material));
+                return Some(HitRecord::new(t, point, normal, material));
             }
         }
 

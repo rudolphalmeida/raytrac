@@ -7,101 +7,40 @@ extern crate raytrac;
 
 use raytrac::*;
 
-use io::write::write_img;
 use materials::dielectric::Dielectric;
 use materials::lambertian::Lambertian;
 use materials::metal::Metal;
 use materials::Material;
-use materials::Scatterable;
 use objects::camera::Camera;
 use objects::sphere::Sphere;
+use objects::HittableList;
 use objects::Object;
-use objects::{Hittable, HittableList};
-use ray::Ray;
+use scene::Scene;
 
 use cgmath::prelude::*;
 use cgmath::Point3;
 use cgmath::Vector3;
-use indicatif::{ProgressBar, ProgressStyle};
 use rand::prelude::*;
-use rayon::iter::{IntoParallelIterator, ParallelIterator};
 
 use std::f64;
 
 fn main() {
-    let filename = "output/sample.png";
+    const WIDTH: u16 = 200;
+    const HEIGHT: u16 = 100;
+    const SAMPLES: u64 = 100;
 
-    let nx: u16 = 200;
-    let ny: u16 = 100;
-    let ns: u64 = 50;
-
-    let cam: Camera = Camera::new(
+    let camera = Camera::new(
         Point3::new(13.0, 2.0, 3.0),
         Point3::new(0.0, 0.0, 0.0),
         Vector3::new(0.0, 1.0, 0.0),
         20.0,
-        f64::from(nx) / f64::from(ny),
+        f64::from(WIDTH) / f64::from(HEIGHT),
         0.1,
         10.0,
-        0.0,
-        1.0,
     );
 
-    let world: HittableList = random_scene();
-
-    let progressbar = ProgressBar::new(u64::from(ny));
-    progressbar.set_style(ProgressStyle::default_bar().template(
-        "[{elapsed} elapsed] {wide_bar:.cyan/white} {percent}% [{eta} remaining] [rendering]",
-    ));
-
-    let scene: Vec<Vec<Vector3<f64>>> = (0..ny)
-        .into_par_iter()
-        .map(|y_rev| {
-            let y: f64 = f64::from(ny) - f64::from(y_rev) - 1.0;
-            let row: Vec<Vector3<f64>> = (0..nx)
-                .into_par_iter()
-                .map(|x| {
-                    let mut color_vector = Vector3::new(0.0, 0.0, 0.0);
-                    for _s in 0..ns {
-                        let u: f64 = (f64::from(x) + rand::random::<f64>()) / f64::from(nx);
-                        let v: f64 = (y + rand::random::<f64>()) / f64::from(ny);
-                        let r: Ray = cam.get_ray(u, v);
-                        color_vector += lerp(&r, &world, 0);
-                    }
-                    color_vector /= ns as f64;
-                    color_vector = color_vector.map(|x| x.sqrt()) * 255.99;
-                    color_vector
-                }).collect();
-            progressbar.inc(1);
-            row
-        }).collect();
-
-    progressbar.finish();
-
-    write_img(&scene, filename);
-}
-
-fn lerp(ray: &Ray, world: &Hittable, depth: i32) -> Vector3<f64> {
-    if let Some(hit) = world.hits(ray, 0.001, f64::MAX) {
-        if depth < 50 {
-            if let Some((scattered, attenuation)) = hit.material.scatter(ray, &hit) {
-                let color = lerp(&scattered, world, depth + 1);
-                Vector3::new(
-                    color.x * attenuation.x,
-                    color.y * attenuation.y,
-                    color.z * attenuation.z,
-                )
-            } else {
-                Vector3::new(0.0, 0.0, 0.0)
-            }
-        } else {
-            Vector3::new(0.0, 0.0, 0.0)
-        }
-    } else {
-        let unit_direction = ray.direction.normalize();
-        let t = 0.5 * (unit_direction.y + 1.0);
-        Vector3::new(1.0, 1.0, 1.0) * (1.0 - t) + Vector3::new(0.5, 0.7, 1.0) * t
-    }
+    let scene = Scene::new(camera, WIDTH, HEIGHT, SAMPLES, random_scene(), 0.0, 1.0);
+    scene.render("output/sample.png")
 }
 
 fn random_scene() -> HittableList {

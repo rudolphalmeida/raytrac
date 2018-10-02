@@ -14,8 +14,8 @@ use materials::metal::Metal;
 use materials::Material;
 use materials::Scatterable;
 use objects::camera::Camera;
-use objects::moving_sphere::Moving_Sphere;
 use objects::sphere::Sphere;
+use objects::Object;
 use objects::{Hittable, HittableList};
 use ray::Ray;
 
@@ -29,11 +29,11 @@ use rayon::iter::{IntoParallelIterator, ParallelIterator};
 use std::f64;
 
 fn main() {
-    let filename = "output/motion_blur.png";
+    let filename = "output/sample.png";
 
-    let nx: i16 = 600;
-    let ny: i16 = 400;
-    let ns: u64 = 200;
+    let nx: u16 = 200;
+    let ny: u16 = 100;
+    let ns: u64 = 50;
 
     let cam: Camera = Camera::new(
         Point3::new(13.0, 2.0, 3.0),
@@ -49,8 +49,8 @@ fn main() {
 
     let world: HittableList = random_scene();
 
-    let bar = ProgressBar::new(ny as u64);
-    bar.set_style(ProgressStyle::default_bar().template(
+    let progressbar = ProgressBar::new(u64::from(ny));
+    progressbar.set_style(ProgressStyle::default_bar().template(
         "[{elapsed} elapsed] {wide_bar:.cyan/white} {percent}% [{eta} remaining] [rendering]",
     ));
 
@@ -72,11 +72,11 @@ fn main() {
                     color_vector = color_vector.map(|x| x.sqrt()) * 255.99;
                     color_vector
                 }).collect();
-            bar.inc(1);
+            progressbar.inc(1);
             row
         }).collect();
 
-    bar.finish();
+    progressbar.finish();
 
     write_img(&scene, filename);
 }
@@ -108,7 +108,7 @@ fn random_scene() -> HittableList {
     let mut rng = rand::thread_rng();
 
     let mut list: HittableList = HittableList::new();
-    list.add(Box::new(Sphere::from(
+    list.add(Object::Sphere(Sphere::from(
         Point3::new(0.0, -1000.0, 0.0),
         1000.0,
         Material::Lambertian(Lambertian::new(Vector3::new(0.5, 0.5, 0.5))),
@@ -125,11 +125,8 @@ fn random_scene() -> HittableList {
             if (center - Vector3::new(4.0, 0.2, 0.0)).to_vec().magnitude() > 0.9 {
                 if choose_mat < 0.8 {
                     // diffuse
-                    list.add(Box::new(Moving_Sphere::from(
+                    list.add(Object::Sphere(Sphere::from(
                         center,
-                        center + Vector3::new(0.0, 0.5 * rng.gen::<f64>(), 0.0),
-                        0.0,
-                        1.0,
                         0.2,
                         Material::Lambertian(Lambertian::new(Vector3::new(
                             rng.gen::<f64>() * rng.gen::<f64>(),
@@ -139,7 +136,7 @@ fn random_scene() -> HittableList {
                     )));
                 } else if choose_mat < 0.95 {
                     //metal
-                    list.add(Box::new(Sphere::from(
+                    list.add(Object::Sphere(Sphere::from(
                         center,
                         0.2,
                         Material::Metal(Metal::new(
@@ -153,7 +150,7 @@ fn random_scene() -> HittableList {
                     )));
                 } else {
                     // dielectric
-                    list.add(Box::new(Sphere::from(
+                    list.add(Object::Sphere(Sphere::from(
                         center,
                         0.2,
                         Material::Dielectric(Dielectric::from(1.5)),
@@ -161,17 +158,17 @@ fn random_scene() -> HittableList {
                 }
             }
 
-            list.add(Box::new(Sphere::from(
+            list.add(Object::Sphere(Sphere::from(
                 Point3::new(0.0, 1.0, 0.0),
                 1.0,
                 Material::Dielectric(Dielectric::from(1.5)),
             )));
-            list.add(Box::new(Sphere::from(
+            list.add(Object::Sphere(Sphere::from(
                 Point3::new(-4.0, 1.0, 0.0),
                 1.0,
                 Material::Lambertian(Lambertian::new(Vector3::new(0.4, 0.4, 0.1))),
             )));
-            list.add(Box::new(Sphere::from(
+            list.add(Object::Sphere(Sphere::from(
                 Point3::new(4.0, 1.0, 0.0),
                 1.0,
                 Material::Metal(Metal::new(Vector3::new(0.7, 0.6, 0.5), 0.0)),

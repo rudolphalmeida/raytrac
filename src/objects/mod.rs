@@ -2,11 +2,14 @@ pub mod camera;
 pub mod moving_sphere;
 pub mod sphere;
 
+use self::moving_sphere::MovingSphere;
+use self::sphere::Sphere;
 use materials::Material;
 use ray::Ray;
 
 use cgmath::prelude::*;
 use cgmath::vec3;
+use cgmath::Point3;
 use cgmath::Vector3;
 use rand::prelude::*;
 
@@ -33,8 +36,24 @@ impl HitRecord {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
+pub enum Object {
+    Sphere(Sphere),
+    MovingSphere(MovingSphere),
+}
+
+impl Hittable for Object {
+    fn hits(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
+        match *self {
+            Object::Sphere(ob) => ob.hits(ray, t_min, t_max),
+            Object::MovingSphere(ob) => ob.hits(ray, t_min, t_max),
+        }
+    }
+}
+
+#[derive(Default)]
 pub struct HittableList {
-    objects: Vec<Box<Hittable>>,
+    objects: Vec<Object>,
 }
 
 impl HittableList {
@@ -44,7 +63,7 @@ impl HittableList {
         }
     }
 
-    pub fn add(&mut self, object: Box<Hittable>) {
+    pub fn add(&mut self, object: Object) {
         self.objects.push(object);
     }
 
@@ -66,6 +85,35 @@ impl Hittable for HittableList {
         }
 
         hit_anything
+    }
+}
+
+#[derive(Debug, Clone, Copy)]
+pub struct TimedMovement {
+    pub starttime: f64,
+    pub start: Point3<f64>,
+    pub endtime: f64,
+    pub end: Point3<f64>,
+}
+
+impl TimedMovement {
+    pub fn new(
+        starttime: f64,
+        start: Point3<f64>,
+        endtime: f64,
+        end: Point3<f64>,
+    ) -> TimedMovement {
+        TimedMovement {
+            starttime,
+            start,
+            endtime,
+            end,
+        }
+    }
+
+    pub fn lerp(&self, time: f64) -> Vector3<f64> {
+        self.start.to_vec()
+            + ((time - self.starttime) / (self.endtime - time)) * (self.end - self.start)
     }
 }
 

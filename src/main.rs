@@ -25,13 +25,13 @@ use rand::prelude::*;
 use std::f64;
 
 fn main() {
-    const WIDTH: u16 = 200;
-    const HEIGHT: u16 = 100;
-    const SAMPLES: u64 = 100;
+    const WIDTH: u16 = 1200;
+    const HEIGHT: u16 = 800;
+    const SAMPLES: u64 = 500;
 
     let camera = Camera::new(
-        Point3::new(13.0, 2.0, 3.0),
-        Point3::new(0.0, 0.0, 0.0),
+        Point3::new(13.0, 0.5, 5.0),
+        Point3::new(0.0, 1.0, 0.0),
         Vector3::new(0.0, 1.0, 0.0),
         20.0,
         f64::from(WIDTH) / f64::from(HEIGHT),

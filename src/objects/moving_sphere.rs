@@ -1,7 +1,9 @@
 use super::HitRecord;
 use super::Hittable;
 use super::TimedMovement;
+use aabb::AABB;
 use materials::Material;
+use objects::sphere::Sphere;
 use ray::Ray;
 
 use cgmath::dot;
@@ -63,5 +65,17 @@ impl Hittable for MovingSphere {
         }
 
         None
+    }
+
+    fn bounding_box(&self, t0: f64, t1: f64) -> Option<AABB> {
+        let start_pos = Sphere::from(self.movement.start, self.radius, self.material);
+        let end_pos = Sphere::from(self.movement.end, self.radius, self.material);
+
+        let box_start = start_pos.bounding_box(t0, t1).unwrap();
+        let box_end = end_pos.bounding_box(t0, t1).unwrap();
+
+        let bx = box_start.surrounding_box(&box_end);
+
+        Some(bx)
     }
 }

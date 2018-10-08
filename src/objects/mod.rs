@@ -2,8 +2,7 @@ pub mod camera;
 pub mod moving_sphere;
 pub mod sphere;
 
-use self::moving_sphere::MovingSphere;
-use self::sphere::Sphere;
+use aabb::AABB;
 use materials::Material;
 use ray::Ray;
 
@@ -15,6 +14,7 @@ use rand::prelude::*;
 
 pub trait Hittable: Send + Sync {
     fn hits(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
+    fn bounding_box(&self, t0: f64, t1: f64) -> Option<AABB>;
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -36,24 +36,9 @@ impl HitRecord {
     }
 }
 
-#[derive(Debug, Clone, Copy)]
-pub enum Object {
-    Sphere(Sphere),
-    MovingSphere(MovingSphere),
-}
-
-impl Hittable for Object {
-    fn hits(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
-        match *self {
-            Object::Sphere(ob) => ob.hits(ray, t_min, t_max),
-            Object::MovingSphere(ob) => ob.hits(ray, t_min, t_max),
-        }
-    }
-}
-
 #[derive(Default)]
 pub struct HittableList {
-    objects: Vec<Object>,
+    pub objects: Vec<Box<dyn Hittable>>,
 }
 
 impl HittableList {
@@ -63,7 +48,7 @@ impl HittableList {
         }
     }
 
-    pub fn add(&mut self, object: Object) {
+    pub fn add(&mut self, object: Box<dyn Hittable>) {
         self.objects.push(object);
     }
 
@@ -85,6 +70,21 @@ impl Hittable for HittableList {
         }
 
         hit_anything
+    }
+
+    fn bounding_box(&self, t0: f64, t1: f64) -> Option<AABB> {
+        if self.size() < 1 {
+            return None;
+        }
+
+        let mut bx = self.objects[0].bounding_box(t0, t1)?;
+
+        for i in 1..self.size() {
+            let tmp_box = self.objects[i].bounding_box(t0, t1)?;
+            bx = bx.surrounding_box(&tmp_box);
+        }
+
+        Some(bx)
     }
 }
 

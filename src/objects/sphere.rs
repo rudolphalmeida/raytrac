@@ -1,10 +1,12 @@
 use super::HitRecord;
 use super::Hittable;
+use aabb::AABB;
 use materials::Material;
 use ray::Ray;
 
 use cgmath::dot;
 use cgmath::prelude::*;
+use cgmath::vec3;
 use cgmath::Point3;
 
 #[derive(Debug, Copy, Clone)]
@@ -50,5 +52,12 @@ impl Hittable for Sphere {
         }
 
         None
+    }
+
+    fn bounding_box(&self, _t0: f64, _t1: f64) -> Option<AABB> {
+        Some(AABB::new(
+            self.center.to_vec() - vec3(self.radius, self.radius, self.radius),
+            self.center.to_vec() + vec3(self.radius, self.radius, self.radius),
+        ))
     }
 }

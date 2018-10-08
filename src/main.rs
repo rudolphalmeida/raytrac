@@ -14,7 +14,6 @@ use materials::Material;
 use objects::camera::Camera;
 use objects::sphere::Sphere;
 use objects::HittableList;
-use objects::Object;
 use scene::Scene;
 
 use cgmath::prelude::*;
@@ -39,7 +38,9 @@ fn main() {
         10.0,
     );
 
-    let scene = Scene::new(camera, WIDTH, HEIGHT, SAMPLES, random_scene(), 0.0, 1.0);
+    let mut world = random_scene();
+
+    let scene = Scene::new(camera, WIDTH, HEIGHT, SAMPLES, &mut world, 0.0, 1.0);
     scene.render("output/sample.png")
 }
 
@@ -47,7 +48,7 @@ fn random_scene() -> HittableList {
     let mut rng = rand::thread_rng();
 
     let mut list: HittableList = HittableList::new();
-    list.add(Object::Sphere(Sphere::from(
+    list.add(Box::new(Sphere::from(
         Point3::new(0.0, -1000.0, 0.0),
         1000.0,
         Material::Lambertian(Lambertian::new(Vector3::new(0.5, 0.5, 0.5))),
@@ -64,7 +65,7 @@ fn random_scene() -> HittableList {
             if (center - Vector3::new(4.0, 0.2, 0.0)).to_vec().magnitude() > 0.9 {
                 if choose_mat < 0.8 {
                     // diffuse
-                    list.add(Object::Sphere(Sphere::from(
+                    list.add(Box::new(Sphere::from(
                         center,
                         0.2,
                         Material::Lambertian(Lambertian::new(Vector3::new(
@@ -75,7 +76,7 @@ fn random_scene() -> HittableList {
                     )));
                 } else if choose_mat < 0.95 {
                     //metal
-                    list.add(Object::Sphere(Sphere::from(
+                    list.add(Box::new(Sphere::from(
                         center,
                         0.2,
                         Material::Metal(Metal::new(
@@ -89,7 +90,7 @@ fn random_scene() -> HittableList {
                     )));
                 } else {
                     // dielectric
-                    list.add(Object::Sphere(Sphere::from(
+                    list.add(Box::new(Sphere::from(
                         center,
                         0.2,
                         Material::Dielectric(Dielectric::from(1.5)),
@@ -97,17 +98,17 @@ fn random_scene() -> HittableList {
                 }
             }
 
-            list.add(Object::Sphere(Sphere::from(
+            list.add(Box::new(Sphere::from(
                 Point3::new(0.0, 1.0, 0.0),
                 1.0,
                 Material::Dielectric(Dielectric::from(1.5)),
             )));
-            list.add(Object::Sphere(Sphere::from(
+            list.add(Box::new(Sphere::from(
                 Point3::new(-4.0, 1.0, 0.0),
                 1.0,
                 Material::Lambertian(Lambertian::new(Vector3::new(0.4, 0.4, 0.1))),
             )));
-            list.add(Object::Sphere(Sphere::from(
+            list.add(Box::new(Sphere::from(
                 Point3::new(4.0, 1.0, 0.0),
                 1.0,
                 Material::Metal(Metal::new(Vector3::new(0.7, 0.6, 0.5), 0.0)),

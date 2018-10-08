@@ -1,3 +1,4 @@
+use bvh::BvhTree;
 use io::write::write_img;
 use materials::Scatterable;
 use objects::camera::Camera;
@@ -13,32 +14,32 @@ use rayon::iter::{IntoParallelIterator, ParallelIterator};
 
 use std::f64;
 
-pub struct Scene {
+pub struct Scene<'a> {
     pub camera: Camera,
     pub width: u16,
     pub height: u16,
     pub samples: u64,
-    pub world: HittableList,
+    pub world: BvhTree<'a>,
     pub time0: f64,
     pub time1: f64,
 }
 
-impl Scene {
+impl<'a> Scene<'a> {
     pub fn new(
         camera: Camera,
         width: u16,
         height: u16,
         samples: u64,
-        world: HittableList,
+        world: &'a mut HittableList,
         time0: f64,
         time1: f64,
-    ) -> Scene {
+    ) -> Scene<'a> {
         Scene {
             camera,
             width,
             height,
             samples,
-            world,
+            world: BvhTree::new(&mut world.objects[..], time0, time1),
             time0,
             time1,
         }

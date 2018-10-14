@@ -29,9 +29,8 @@ impl<'a> BvhTree<'a> {
         let node = &self.nodes[id.index];
 
         if node.aabb.is_none() || node.aabb.is_some() && node.aabb.unwrap().hit(r, tmin, tmax) {
-            match node.hittable {
-                Some(ref hitable) => return hitable.hits(r, tmin, tmax),
-                None => {}
+            if let Some(ref hitable) = node.hittable {
+                return hitable.hits(r, tmin, tmax);
             }
 
             let mut hit_left: Option<HitRecord> = None;
@@ -45,21 +44,19 @@ impl<'a> BvhTree<'a> {
                 hit_right = self.hit(*right_index, r, tmin, tmax);
             }
 
-            match hit_left {
-                Some(left) => match hit_right {
+            if let Some(left) = hit_left {
+                match hit_right {
                     Some(right) => if left.t < right.t {
-                        return hit_left;
+                        return Some(left);
                     } else {
-                        return hit_right;
+                        return Some(right);
                     },
-                    None => return hit_left,
-                },
-                None => {}
+                    None => return Some(left),
+                }
             }
 
-            match hit_right {
-                Some(_right) => return hit_right,
-                None => {}
+            if hit_right.is_some() {
+                return hit_right;
             }
         }
 
@@ -151,23 +148,6 @@ impl<'a> BvhTree<'a> {
         });
 
         NodeId { index }
-    }
-
-    fn number_hittables(&self, id: NodeId) -> usize {
-        let node = &self.nodes[id.index];
-        let local_hitable = if node.hittable.is_some() { 1 } else { 0 };
-        let count_left = if let Some(left_index) = node.left {
-            self.number_hittables(left_index)
-        } else {
-            0
-        };
-        let count_right = if let Some(right_index) = node.right {
-            self.number_hittables(right_index)
-        } else {
-            0
-        };
-
-        local_hitable + count_left + count_right
     }
 }
 

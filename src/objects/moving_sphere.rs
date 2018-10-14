@@ -11,7 +11,6 @@ use cgmath::prelude::*;
 use cgmath::Point3;
 use cgmath::Vector3;
 
-#[derive(Debug, Clone, Copy)]
 pub struct MovingSphere {
     pub movement: TimedMovement,
     pub radius: f64,
@@ -51,7 +50,7 @@ impl Hittable for MovingSphere {
             if t < t_max && t > t_min {
                 let point = ray.point_at(t);
                 let normal = (point - self.center(ray.time)) / self.radius;
-                let material = self.material;
+                let material = &self.material;
                 return Some(HitRecord::new(t, point, normal, material));
             }
 
@@ -59,7 +58,7 @@ impl Hittable for MovingSphere {
             if t < t_max && t > t_min {
                 let point = ray.point_at(t);
                 let normal = (point - self.center(ray.time)) / self.radius;
-                let material = self.material;
+                let material = &self.material;
                 return Some(HitRecord::new(t, point, normal, material));
             }
         }
@@ -68,8 +67,8 @@ impl Hittable for MovingSphere {
     }
 
     fn bounding_box(&self, t0: f64, t1: f64) -> Option<AABB> {
-        let start_pos = Sphere::from(self.movement.start, self.radius, self.material);
-        let end_pos = Sphere::from(self.movement.end, self.radius, self.material);
+        let start_pos = Sphere::from(self.movement.start, self.radius, Material::PitchBlack);
+        let end_pos = Sphere::from(self.movement.end, self.radius, Material::PitchBlack);
 
         let box_start = start_pos.bounding_box(t0, t1).unwrap();
         let box_end = end_pos.bounding_box(t0, t1).unwrap();

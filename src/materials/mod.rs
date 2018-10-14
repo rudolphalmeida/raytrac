@@ -10,6 +10,7 @@ use self::lambertian::Lambertian;
 use self::metal::Metal;
 
 use cgmath::dot;
+use cgmath::vec3;
 use cgmath::InnerSpace;
 use cgmath::Vector3;
 use rand::prelude::*;
@@ -18,11 +19,11 @@ pub trait Scatterable {
     fn scatter(&self, ray_in: &Ray, rec: &HitRecord) -> Option<(Ray, Vector3<f64>)>;
 }
 
-#[derive(Clone, Copy, Debug)]
 pub enum Material {
     Lambertian(Lambertian),
     Metal(Metal),
     Dielectric(Dielectric),
+    PitchBlack,
 }
 
 impl Scatterable for Material {
@@ -31,6 +32,7 @@ impl Scatterable for Material {
             Material::Lambertian(ref inner) => inner.scatter(ray, rec),
             Material::Metal(ref inner) => inner.scatter(ray, rec),
             Material::Dielectric(ref inner) => inner.scatter(ray, rec),
+            Material::PitchBlack => Some((*ray, vec3::<f64>(0.0, 0.0, 0.0))),
         }
     }
 }

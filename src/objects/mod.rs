@@ -17,16 +17,15 @@ pub trait Hittable: Send + Sync {
     fn bounding_box(&self, t0: f64, t1: f64) -> Option<AABB>;
 }
 
-#[derive(Debug, Clone, Copy)]
-pub struct HitRecord {
+pub struct HitRecord<'a> {
     pub t: f64,
     pub p: Vector3<f64>,
     pub normal: Vector3<f64>,
-    pub material: Material,
+    pub material: &'a Material,
 }
 
-impl HitRecord {
-    pub fn new(t: f64, p: Vector3<f64>, normal: Vector3<f64>, material: Material) -> HitRecord {
+impl<'a> HitRecord<'a> {
+    pub fn new(t: f64, p: Vector3<f64>, normal: Vector3<f64>, material: &'a Material) -> HitRecord {
         HitRecord {
             t,
             p,

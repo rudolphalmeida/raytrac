@@ -1,26 +1,33 @@
 use objects::HitRecord;
 use ray::Ray;
+use textures::constant_texture::ConstantTexture;
+use textures::Texture;
+use textures::Textured;
 
 use super::{point_in_unit_sphere, Scatterable};
 
 use cgmath::prelude::*;
-use cgmath::vec3;
 use cgmath::Point3;
 use cgmath::Vector3;
 
-#[derive(Debug, Clone, Copy)]
 pub struct Lambertian {
-    albedo: Vector3<f64>,
+    albedo: Texture,
 }
 
 impl Lambertian {
-    pub fn new(albedo: Vector3<f64>) -> Lambertian {
+    pub fn new(albedo: Texture) -> Lambertian {
         Lambertian { albedo }
     }
 
-    pub fn from(x: f64, y: f64, z: f64) -> Lambertian {
+    pub fn color(r: f64, g: f64, b: f64) -> Lambertian {
         Lambertian {
-            albedo: vec3::<f64>(x, y, z),
+            albedo: Texture::ConstantTexture(ConstantTexture::from(r, g, b)),
+        }
+    }
+
+    pub fn from_vec3(color: Vector3<f64>) -> Self {
+        Lambertian {
+            albedo: Texture::ConstantTexture(ConstantTexture::new(color)),
         }
     }
 }
@@ -29,7 +36,7 @@ impl Scatterable for Lambertian {
     fn scatter(&self, ray: &Ray, rec: &HitRecord) -> Option<(Ray, Vector3<f64>)> {
         let target = rec.p + rec.normal + point_in_unit_sphere();
         let scattered = Ray::from(Point3::from_vec(rec.p), target - rec.p, ray.time);
-        let attenuation = self.albedo;
+        let attenuation = self.albedo.value(0.0, 0.0, rec.p);
 
         Some((scattered, attenuation))
     }

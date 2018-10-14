@@ -15,6 +15,9 @@ use objects::camera::Camera;
 use objects::sphere::Sphere;
 use objects::HittableList;
 use scene::Scene;
+use textures::checked_texture::CheckedTexture;
+use textures::constant_texture::ConstantTexture;
+use textures::Texture;
 
 use cgmath::prelude::*;
 use cgmath::Point3;
@@ -24,13 +27,13 @@ use rand::prelude::*;
 use std::f64;
 
 fn main() {
-    const WIDTH: u16 = 1200;
-    const HEIGHT: u16 = 800;
-    const SAMPLES: u64 = 500;
+    const WIDTH: u16 = 350;
+    const HEIGHT: u16 = 200;
+    const SAMPLES: u64 = 50;
 
     let camera = Camera::new(
-        Point3::new(13.0, 0.5, 5.0),
-        Point3::new(0.0, 1.0, 0.0),
+        Point3::new(13.0, 2.0, 3.0),
+        Point3::new(0.0, 0.0, 0.0),
         Vector3::new(0.0, 1.0, 0.0),
         20.0,
         f64::from(WIDTH) / f64::from(HEIGHT),
@@ -51,7 +54,12 @@ fn random_scene() -> HittableList {
     list.add(Box::new(Sphere::from(
         Point3::new(0.0, -1000.0, 0.0),
         1000.0,
-        Material::Lambertian(Lambertian::new(Vector3::new(0.5, 0.5, 0.5))),
+        Material::Lambertian(Lambertian::new(Texture::CheckedTexture(
+            CheckedTexture::new(
+                Texture::ConstantTexture(ConstantTexture::from(0.5, 0.5, 0.5)),
+                Texture::ConstantTexture(ConstantTexture::from(0.2, 0.6, 0.4)),
+            ),
+        ))),
     )));
 
     for a in -11..11 {
@@ -68,10 +76,12 @@ fn random_scene() -> HittableList {
                     list.add(Box::new(Sphere::from(
                         center,
                         0.2,
-                        Material::Lambertian(Lambertian::new(Vector3::new(
-                            rng.gen::<f64>() * rng.gen::<f64>(),
-                            rng.gen::<f64>() * rng.gen::<f64>(),
-                            rng.gen::<f64>() * rng.gen::<f64>(),
+                        Material::Lambertian(Lambertian::new(Texture::ConstantTexture(
+                            ConstantTexture::from(
+                                rng.gen::<f64>() * rng.gen::<f64>(),
+                                rng.gen::<f64>() * rng.gen::<f64>(),
+                                rng.gen::<f64>() * rng.gen::<f64>(),
+                            ),
                         ))),
                     )));
                 } else if choose_mat < 0.95 {
@@ -106,7 +116,9 @@ fn random_scene() -> HittableList {
             list.add(Box::new(Sphere::from(
                 Point3::new(-4.0, 1.0, 0.0),
                 1.0,
-                Material::Lambertian(Lambertian::new(Vector3::new(0.4, 0.4, 0.1))),
+                Material::Lambertian(Lambertian::new(Texture::ConstantTexture(
+                    ConstantTexture::from(0.4, 0.4, 0.1),
+                ))),
             )));
             list.add(Box::new(Sphere::from(
                 Point3::new(4.0, 1.0, 0.0),

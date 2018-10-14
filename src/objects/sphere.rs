@@ -9,7 +9,6 @@ use cgmath::prelude::*;
 use cgmath::vec3;
 use cgmath::Point3;
 
-#[derive(Debug, Copy, Clone)]
 pub struct Sphere {
     pub center: Point3<f64>,
     pub radius: f64,
@@ -38,7 +37,7 @@ impl Hittable for Sphere {
             if t < t_max && t > t_min {
                 let point = ray.point_at(t);
                 let normal = (point - self.center.to_vec()) / self.radius;
-                let material = self.material;
+                let material = &self.material;
                 return Some(HitRecord::new(t, point, normal, material));
             }
 
@@ -46,7 +45,7 @@ impl Hittable for Sphere {
             if t < t_max && t > t_min {
                 let point = ray.point_at(t);
                 let normal = (point - self.center.to_vec()) / self.radius;
-                let material = self.material;
+                let material = &self.material;
                 return Some(HitRecord::new(t, point, normal, material));
             }
         }

@@ -12,20 +12,27 @@ use cgmath::Point3;
 use cgmath::Vector3;
 use rand::prelude::*;
 
+use std::sync::Arc;
+
 pub trait Hittable: Send + Sync {
     fn hits(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
     fn bounding_box(&self, t0: f64, t1: f64) -> Option<AABB>;
 }
 
-pub struct HitRecord<'a> {
+pub struct HitRecord {
     pub t: f64,
     pub p: Vector3<f64>,
     pub normal: Vector3<f64>,
-    pub material: &'a Material,
+    pub material: Arc<Material>,
 }
 
-impl<'a> HitRecord<'a> {
-    pub fn new(t: f64, p: Vector3<f64>, normal: Vector3<f64>, material: &'a Material) -> HitRecord {
+impl HitRecord {
+    pub fn new(
+        t: f64,
+        p: Vector3<f64>,
+        normal: Vector3<f64>,
+        material: Arc<Material>,
+    ) -> HitRecord {
         HitRecord {
             t,
             p,

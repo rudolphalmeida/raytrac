@@ -10,7 +10,6 @@ use self::lambertian::Lambertian;
 use self::metal::Metal;
 
 use cgmath::dot;
-use cgmath::vec3;
 use cgmath::InnerSpace;
 use cgmath::Vector3;
 use rand::prelude::*;
@@ -23,7 +22,12 @@ pub enum Material {
     Lambertian(Lambertian),
     Metal(Metal),
     Dielectric(Dielectric),
-    PitchBlack,
+}
+
+impl Material {
+    pub fn matte_black() -> Self {
+        Material::Lambertian(Lambertian::color(0.0, 0.0, 0.0))
+    }
 }
 
 impl Scatterable for Material {
@@ -32,7 +36,6 @@ impl Scatterable for Material {
             Material::Lambertian(ref inner) => inner.scatter(ray, rec),
             Material::Metal(ref inner) => inner.scatter(ray, rec),
             Material::Dielectric(ref inner) => inner.scatter(ray, rec),
-            Material::PitchBlack => Some((*ray, vec3::<f64>(0.0, 0.0, 0.0))),
         }
     }
 }

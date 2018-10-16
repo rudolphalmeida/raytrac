@@ -11,10 +11,12 @@ use cgmath::prelude::*;
 use cgmath::Point3;
 use cgmath::Vector3;
 
+use std::sync::Arc;
+
 pub struct MovingSphere {
     pub movement: TimedMovement,
     pub radius: f64,
-    pub material: Material,
+    pub material: Arc<Material>,
 }
 
 impl MovingSphere {
@@ -24,7 +26,7 @@ impl MovingSphere {
         time0: f64,
         time1: f64,
         radius: f64,
-        material: Material,
+        material: Arc<Material>,
     ) -> MovingSphere {
         MovingSphere {
             movement: TimedMovement::new(time0, center0, time1, center1),
@@ -50,7 +52,7 @@ impl Hittable for MovingSphere {
             if t < t_max && t > t_min {
                 let point = ray.point_at(t);
                 let normal = (point - self.center(ray.time)) / self.radius;
-                let material = &self.material;
+                let material = Arc::clone(&self.material);
                 return Some(HitRecord::new(t, point, normal, material));
             }
 
@@ -58,7 +60,7 @@ impl Hittable for MovingSphere {
             if t < t_max && t > t_min {
                 let point = ray.point_at(t);
                 let normal = (point - self.center(ray.time)) / self.radius;
-                let material = &self.material;
+                let material = Arc::clone(&self.material);
                 return Some(HitRecord::new(t, point, normal, material));
             }
         }
@@ -67,8 +69,16 @@ impl Hittable for MovingSphere {
     }
 
     fn bounding_box(&self, t0: f64, t1: f64) -> Option<AABB> {
-        let start_pos = Sphere::from(self.movement.start, self.radius, Material::PitchBlack);
-        let end_pos = Sphere::from(self.movement.end, self.radius, Material::PitchBlack);
+        let start_pos = Sphere::from(
+            self.movement.start,
+            self.radius,
+            Arc::new(Material::matte_black()),
+        );
+        let end_pos = Sphere::from(
+            self.movement.end,
+            self.radius,
+            Arc::new(Material::matte_black()),
+        );
 
         let box_start = start_pos.bounding_box(t0, t1).unwrap();
         let box_end = end_pos.bounding_box(t0, t1).unwrap();

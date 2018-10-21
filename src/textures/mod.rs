@@ -7,6 +7,7 @@ pub trait Textured {
 pub enum Texture {
     ConstantTexture(constant_texture::ConstantTexture),
     CheckedTexture(checked_texture::CheckedTexture),
+    NoiseTexture(noise_texture::NoiseTexture),
 }
 
 impl Textured for Texture {
@@ -14,9 +15,11 @@ impl Textured for Texture {
         match *self {
             Texture::ConstantTexture(ref tex) => tex.value(u, v, p),
             Texture::CheckedTexture(ref tex) => tex.value(u, v, p),
+            Texture::NoiseTexture(ref tex) => tex.value(u, v, p),
         }
     }
 }
 
 pub mod checked_texture;
 pub mod constant_texture;
+pub mod noise_texture;

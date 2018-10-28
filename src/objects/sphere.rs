@@ -38,17 +38,19 @@ impl Hittable for Sphere {
             let t = (-b - discriminant.sqrt()) / (2.0 * a);
             if t < t_max && t > t_min {
                 let point = ray.point_at(t);
+                let (u, v) = super::get_sphere_uv((point - self.center.to_vec()) / self.radius);
                 let normal = (point - self.center.to_vec()) / self.radius;
                 let material = Arc::clone(&self.material);
-                return Some(HitRecord::new(t, point, normal, material));
+                return Some(HitRecord::new(t, point, normal, material, u, v));
             }
 
             let t = (-b + discriminant.sqrt()) / (2.0 * a);
             if t < t_max && t > t_min {
                 let point = ray.point_at(t);
+                let (u, v) = super::get_sphere_uv((point - self.center.to_vec()) / self.radius);
                 let normal = (point - self.center.to_vec()) / self.radius;
                 let material = Arc::clone(&self.material);
-                return Some(HitRecord::new(t, point, normal, material));
+                return Some(HitRecord::new(t, point, normal, material, u, v));
             }
         }
 

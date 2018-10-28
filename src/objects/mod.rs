@@ -12,6 +12,7 @@ use cgmath::Point3;
 use cgmath::Vector3;
 use rand::prelude::*;
 
+use std::f64::consts::PI;
 use std::sync::Arc;
 
 pub trait Hittable: Send + Sync {
@@ -24,6 +25,8 @@ pub struct HitRecord {
     pub p: Vector3<f64>,
     pub normal: Vector3<f64>,
     pub material: Arc<Material>,
+    pub u: f64,
+    pub v: f64,
 }
 
 impl HitRecord {
@@ -32,12 +35,16 @@ impl HitRecord {
         p: Vector3<f64>,
         normal: Vector3<f64>,
         material: Arc<Material>,
+        u: f64,
+        v: f64,
     ) -> HitRecord {
         HitRecord {
             t,
             p,
             normal,
             material,
+            u,
+            v,
         }
     }
 }
@@ -132,4 +139,13 @@ fn random_in_unit_disk() -> Vector3<f64> {
     }
 
     p
+}
+
+fn get_sphere_uv(p: Vector3<f64>) -> (f64, f64) {
+    let phi = p.z.atan2(p.x);
+    let theta = p.y.asin();
+    let u = 1.0 - (phi + PI) / (2.0 * PI);
+    let v = (theta + PI / 2.0) / PI;
+
+    (u, v)
 }

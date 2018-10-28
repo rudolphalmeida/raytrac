@@ -3,31 +3,32 @@ use ray::Ray;
 
 pub mod dielectric;
 pub mod lambertian;
+pub mod light;
 pub mod metal;
 
 use self::dielectric::Dielectric;
 use self::lambertian::Lambertian;
+use self::light::DiffuseLight;
 use self::metal::Metal;
 
 use cgmath::dot;
+use cgmath::vec3;
 use cgmath::InnerSpace;
 use cgmath::Vector3;
 use rand::prelude::*;
 
 pub trait Scatterable {
     fn scatter(&self, ray_in: &Ray, rec: &HitRecord) -> Option<(Ray, Vector3<f64>)>;
+    fn emitted(&self, _u: f64, _v: f64, _p: Vector3<f64>) -> Vector3<f64> {
+        vec3::<f64>(0.0, 0.0, 0.0)
+    }
 }
 
 pub enum Material {
     Lambertian(Lambertian),
     Metal(Metal),
     Dielectric(Dielectric),
-}
-
-impl Material {
-    pub fn matte_black() -> Self {
-        Material::Lambertian(Lambertian::color(0.0, 0.0, 0.0))
-    }
+    DiffuseLight(DiffuseLight),
 }
 
 impl Scatterable for Material {
@@ -36,6 +37,16 @@ impl Scatterable for Material {
             Material::Lambertian(ref inner) => inner.scatter(ray, rec),
             Material::Metal(ref inner) => inner.scatter(ray, rec),
             Material::Dielectric(ref inner) => inner.scatter(ray, rec),
+            Material::DiffuseLight(ref inner) => inner.scatter(ray, rec),
+        }
+    }
+
+    fn emitted(&self, u: f64, v: f64, p: Vector3<f64>) -> Vector3<f64> {
+        match *self {
+            Material::Lambertian(ref inner) => inner.emitted(u, v, p),
+            Material::Metal(ref inner) => inner.emitted(u, v, p),
+            Material::Dielectric(ref inner) => inner.emitted(u, v, p),
+            Material::DiffuseLight(ref inner) => inner.emitted(u, v, p),
         }
     }
 }

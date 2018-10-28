@@ -42,6 +42,7 @@ impl MovingSphere {
 
 impl Hittable for MovingSphere {
     fn hits(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
+        let center = (self.movement.start.to_vec() + self.movement.end.to_vec()) / 2.0;
         let oc = (ray.origin - self.center(ray.time)).to_vec();
         let a = ray.direction.dot(ray.direction);
         let b = 2.0 * dot(oc, ray.direction);
@@ -51,17 +52,19 @@ impl Hittable for MovingSphere {
             let t = (-b - discriminant.sqrt()) / (2.0 * a);
             if t < t_max && t > t_min {
                 let point = ray.point_at(t);
+                let (u, v) = super::get_sphere_uv((point - center) / self.radius);
                 let normal = (point - self.center(ray.time)) / self.radius;
                 let material = Arc::clone(&self.material);
-                return Some(HitRecord::new(t, point, normal, material));
+                return Some(HitRecord::new(t, point, normal, material, u, v));
             }
 
             let t = (-b + discriminant.sqrt()) / (2.0 * a);
             if t < t_max && t > t_min {
                 let point = ray.point_at(t);
+                let (u, v) = super::get_sphere_uv((point - center) / self.radius);
                 let normal = (point - self.center(ray.time)) / self.radius;
                 let material = Arc::clone(&self.material);
-                return Some(HitRecord::new(t, point, normal, material));
+                return Some(HitRecord::new(t, point, normal, material, u, v));
             }
         }
 
@@ -69,16 +72,8 @@ impl Hittable for MovingSphere {
     }
 
     fn bounding_box(&self, t0: f64, t1: f64) -> Option<AABB> {
-        let start_pos = Sphere::from(
-            self.movement.start,
-            self.radius,
-            Arc::new(Material::matte_black()),
-        );
-        let end_pos = Sphere::from(
-            self.movement.end,
-            self.radius,
-            Arc::new(Material::matte_black()),
-        );
+        let start_pos = Sphere::from(self.movement.start, self.radius, Arc::clone(&self.material));
+        let end_pos = Sphere::from(self.movement.end, self.radius, Arc::clone(&self.material));
 
         let box_start = start_pos.bounding_box(t0, t1).unwrap();
         let box_end = end_pos.bounding_box(t0, t1).unwrap();

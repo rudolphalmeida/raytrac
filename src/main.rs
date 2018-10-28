@@ -9,6 +9,7 @@ use raytrac::*;
 
 use materials::dielectric::Dielectric;
 use materials::lambertian::Lambertian;
+use materials::light::DiffuseLight;
 use materials::metal::Metal;
 use materials::Material;
 use objects::camera::Camera;
@@ -19,18 +20,20 @@ use scene::Scene;
 use cgmath::prelude::*;
 use cgmath::Point3;
 use cgmath::Vector3;
+use rand::prelude::*;
 
 use std::f64;
 use std::sync::Arc;
 
 fn main() {
-    const WIDTH: u16 = 1920;
-    const HEIGHT: u16 = 1080;
-    const SAMPLES: u64 = 500;
+    const WIDTH: u16 = 350;
+    const HEIGHT: u16 = 200;
+    const SAMPLES: u64 = 200;
 
-    let look_from = Point3::new(0.0, 4.0, 5.0);
-    let look_at = Point3::new(0.0, 0.0, -5.0);
-    let dist_to_focus = (look_from - look_at).magnitude();
+    let look_from = Point3::new(13.0, 2.0, 3.0);
+    let look_at = Point3::new(0.0, 0.0, 0.0);
+    // let dist_to_focus = (look_from - look_at).magnitude();
+    let dist_to_focus = 10.0;
 
     let camera = Camera::new(
         look_from,
@@ -38,7 +41,7 @@ fn main() {
         Vector3::new(0.0, 1.0, 0.0),
         20.0,
         f64::from(WIDTH) / f64::from(HEIGHT),
-        0.0,
+        0.1,
         dist_to_focus,
     );
 
@@ -49,101 +52,79 @@ fn main() {
 }
 
 fn random_scene() -> HittableList {
-    let mut hitable_list = HittableList::new();
+    let mut rng = thread_rng();
 
-    //red
-    let _red = Arc::new(Material::Lambertian(Lambertian::color(1.0, 0.0, 0.0)));
-    //green
-    let _green = Arc::new(Material::Lambertian(Lambertian::color(0.0, 1.0, 0.0)));
-    //blue
-    let _blue = Arc::new(Material::Lambertian(Lambertian::color(0.0, 0.0, 1.0)));
-    //white
-    let _white = Arc::new(Material::Lambertian(Lambertian::color(1.0, 1.0, 1.0)));
-    //red
-    let _red_metal = Arc::new(Material::Metal(Metal::new(
-        Vector3::new(1.0, 0.0, 0.0),
-        0.1,
-    )));
-    //green
-    let _green_metal = Arc::new(Material::Metal(Metal::new(
-        Vector3::new(0.0, 1.0, 0.0),
-        0.1,
-    )));
-    //blue
-    let _blue_metal = Arc::new(Material::Metal(Metal::new(
-        Vector3::new(0.0, 0.0, 1.0),
-        0.1,
-    )));
-    //white
-    let _white_metal = Arc::new(Material::Metal(Metal::new(
-        Vector3::new(1.0, 1.0, 1.0),
-        0.1,
-    )));
-    //black \m/
-    let _black_metal = Arc::new(Material::Metal(Metal::new(
-        Vector3::new(0.0, 0.0, 0.0),
-        0.1,
-    )));
-    //black
-    let _black = Arc::new(Material::Lambertian(Lambertian::color(0.0, 0.0, 0.0)));
-    //gold
-    let _gold = Arc::new(Material::Metal(Metal::new(
-        Vector3::new(0.8, 0.6, 0.2),
-        0.3,
-    )));
-    //silver
-    let _silver = Arc::new(Material::Metal(Metal::new(
-        Vector3::new(0.8, 0.8, 0.8),
-        0.2,
-    )));
-    //glass
-    let _glass = Arc::new(Material::Dielectric(Dielectric::from(1.52)));
-
-    //jules farben
-    let _color1 = Arc::new(Material::Lambertian(Lambertian::color(0.5176, 0.4392, 1.0)));
-    let _color2 = Arc::new(Material::Lambertian(Lambertian::color(
-        0.8039, 0.3607, 0.3607,
-    )));
-    let _color3 = Arc::new(Material::Lambertian(Lambertian::color(0.6, 0.1960, 0.8)));
-    let _color4 = Arc::new(Material::Lambertian(Lambertian::color(
-        0.8666, 0.6274, 0.8666,
-    )));
-    let _color5 = Arc::new(Material::Lambertian(Lambertian::color(0.6901, 0.8862, 1.0)));
-    let _color6 = Arc::new(Material::Metal(Metal::new(
-        Vector3::new(0.0, 1.0, 0.6039),
-        0.39,
-    )));
-    let _color7 = Arc::new(Material::Metal(Metal::new(
-        Vector3::new(0.6039, 1.0, 0.6039),
-        0.67,
-    )));
-    let _floor = Arc::new(Material::Lambertian(Lambertian::color(
-        0.2117, 0.2117, 0.2117,
+    let mut list: HittableList = HittableList::new();
+    list.add(Box::new(Sphere::from(
+        Point3::new(0.0, -1000.0, 0.0),
+        1000.0,
+        Arc::new(Material::Lambertian(Lambertian::color(0.4, 0.2, 0.4))),
     )));
 
-    hitable_list.add(Box::new(Sphere::from(
-        Point3::new(0.0, -100.5, -1.0),
-        100.0,
-        _floor.clone(),
-    )));
-    for y in 0..15 {
-        for x in 0..15 {
-            let num = y * 15 + x;
-            hitable_list.add(Box::new(Sphere::from(
-                Point3::new(f64::from(x) - 15.0 / 2.0, 0.0, f64::from(-(y + 1))),
-                0.5,
-                match num % 7 {
-                    0 => _color1.clone(),
-                    1 => _color2.clone(),
-                    2 => _color3.clone(),
-                    3 => _color4.clone(),
-                    4 => _color5.clone(),
-                    5 => _color6.clone(),
-                    _ => _color7.clone(),
-                },
-            )));
+    for a in -11..11 {
+        for b in -11..11 {
+            let choose_mat = rng.gen::<f64>();
+            let center = Point3::new(
+                f64::from(a) + 0.9 * rng.gen::<f64>(),
+                0.2,
+                f64::from(b) + 0.9 * rng.gen::<f64>(),
+            );
+            if (center - Vector3::new(4.0, 0.2, 0.0)).to_vec().magnitude() > 0.9 {
+                if choose_mat < 0.8 {
+                    // diffuse
+                    list.add(Box::new(Sphere::from(
+                        center,
+                        0.2,
+                        Arc::new(Material::Lambertian(Lambertian::color(
+                            rng.gen::<f64>() * rng.gen::<f64>(),
+                            rng.gen::<f64>() * rng.gen::<f64>(),
+                            rng.gen::<f64>() * rng.gen::<f64>(),
+                        ))),
+                    )));
+                } else if choose_mat < 0.95 {
+                    //metal
+                    list.add(Box::new(Sphere::from(
+                        center,
+                        0.2,
+                        Arc::new(Material::Metal(Metal::new(
+                            Vector3::new(
+                                0.5 * (1.0 + rng.gen::<f64>()),
+                                0.5 * (1.0 + rng.gen::<f64>()),
+                                0.5 * (1.0 + rng.gen::<f64>()),
+                            ),
+                            0.5 * rng.gen::<f64>(),
+                        ))),
+                    )));
+                } else {
+                    // dielectric
+                    list.add(Box::new(Sphere::from(
+                        center,
+                        0.2,
+                        Arc::new(Material::Dielectric(Dielectric::from(1.5))),
+                    )));
+                }
+            }
         }
     }
 
-    hitable_list
+    list.add(Box::new(Sphere::from(
+        Point3::new(-4.0, 1.0, 0.0),
+        1.0,
+        Arc::new(Material::Dielectric(Dielectric::from(1.5))),
+    )));
+    list.add(Box::new(Sphere::from(
+        Point3::new(0.0, 1.0, 0.0),
+        1.0,
+        Arc::new(Material::DiffuseLight(DiffuseLight::color(4.0, 4.0, 4.0))),
+    )));
+    list.add(Box::new(Sphere::from(
+        Point3::new(4.0, 1.0, 0.0),
+        1.0,
+        Arc::new(Material::Metal(Metal::new(
+            Vector3::new(0.7, 0.6, 0.5),
+            0.0,
+        ))),
+    )));
+
+    list
 }

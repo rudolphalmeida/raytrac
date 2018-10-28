@@ -6,7 +6,7 @@ use objects::Hittable;
 use objects::HittableList;
 use ray::Ray;
 
-use cgmath::prelude::*;
+use cgmath::vec3;
 use cgmath::Vector3;
 use indicatif::{ProgressBar, ProgressStyle};
 use rand::prelude::*;
@@ -82,23 +82,22 @@ impl<'a> Scene<'a> {
 
 fn lerp(ray: &Ray, world: &Hittable, depth: i32) -> Vector3<f64> {
     if let Some(hit) = world.hits(ray, 0.001, f64::MAX) {
+        let emitted = hit.material.emitted(hit.u, hit.v, hit.p);
         if depth < 50 {
             if let Some((scattered, attenuation)) = hit.material.scatter(ray, &hit) {
                 let color = lerp(&scattered, world, depth + 1);
                 Vector3::new(
-                    color.x * attenuation.x,
-                    color.y * attenuation.y,
-                    color.z * attenuation.z,
+                    color.x * attenuation.x + emitted.x,
+                    color.y * attenuation.y + emitted.y,
+                    color.z * attenuation.z + emitted.z,
                 )
             } else {
-                Vector3::new(0.0, 0.0, 0.0)
+                emitted
             }
         } else {
-            Vector3::new(0.0, 0.0, 0.0)
+            emitted
         }
     } else {
-        let unit_direction = ray.direction.normalize();
-        let t = 0.5 * (unit_direction.y + 1.0);
-        Vector3::new(1.0, 1.0, 1.0) * (1.0 - t) + Vector3::new(0.5, 0.7, 1.0) * t
+        vec3::<f64>(0.0, 0.0, 0.0)
     }
 }

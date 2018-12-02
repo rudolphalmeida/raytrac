@@ -69,10 +69,12 @@ impl<'a> Scene<'a> {
                         color_vector /= self.samples as f64;
                         color_vector = color_vector.map(|x| x.sqrt()) * 255.99;
                         color_vector
-                    }).collect();
+                    })
+                    .collect();
                 progressbar.inc(1);
                 row
-            }).collect();
+            })
+            .collect();
 
         progressbar.finish();
 

@@ -46,11 +46,13 @@ impl<'a> BvhTree<'a> {
 
             if let Some(left) = hit_left {
                 match hit_right {
-                    Some(right) => if left.t < right.t {
-                        return Some(left);
-                    } else {
-                        return Some(right);
-                    },
+                    Some(right) => {
+                        if left.t < right.t {
+                            return Some(left);
+                        } else {
+                            return Some(right);
+                        }
+                    }
                     None => return Some(left),
                 }
             }

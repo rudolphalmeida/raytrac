@@ -1,10 +1,10 @@
 use super::HitRecord;
 use super::Hittable;
 use super::TimedMovement;
-use aabb::AABB;
-use materials::Material;
-use objects::sphere::Sphere;
-use ray::Ray;
+use crate::aabb::AABB;
+use crate::materials::Material;
+use crate::objects::sphere::Sphere;
+use crate::ray::Ray;
 
 use cgmath::dot;
 use cgmath::prelude::*;

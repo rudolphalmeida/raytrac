@@ -1,8 +1,8 @@
 use super::HitRecord;
 use super::Hittable;
-use aabb::AABB;
-use materials::Material;
-use ray::Ray;
+use crate::aabb::AABB;
+use crate::materials::Material;
+use crate::ray::Ray;
 
 use cgmath::dot;
 use cgmath::prelude::*;

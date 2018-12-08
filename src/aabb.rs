@@ -1,4 +1,4 @@
-use ray::Ray;
+use crate::ray::Ray;
 
 use cgmath::vec3;
 use cgmath::Vector3;

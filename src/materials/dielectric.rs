@@ -1,5 +1,5 @@
-use objects::HitRecord;
-use ray::Ray;
+use crate::objects::HitRecord;
+use crate::ray::Ray;
 
 use super::Scatterable;
 

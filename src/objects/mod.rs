@@ -2,9 +2,9 @@ pub mod camera;
 pub mod moving_sphere;
 pub mod sphere;
 
-use aabb::AABB;
-use materials::Material;
-use ray::Ray;
+use crate::aabb::AABB;
+use crate::materials::Material;
+use crate::ray::Ray;
 
 use cgmath::prelude::*;
 use cgmath::vec3;

@@ -1,7 +1,7 @@
-use aabb::AABB;
-use objects::HitRecord;
-use objects::Hittable;
-use ray::Ray;
+use crate::aabb::AABB;
+use crate::objects::HitRecord;
+use crate::objects::Hittable;
+use crate::ray::Ray;
 
 use rand::prelude::*;
 
@@ -46,11 +46,13 @@ impl<'a> BvhTree<'a> {
 
             if let Some(left) = hit_left {
                 match hit_right {
-                    Some(right) => if left.t < right.t {
-                        return Some(left);
-                    } else {
-                        return Some(right);
-                    },
+                    Some(right) => {
+                        if left.t < right.t {
+                            return Some(left);
+                        } else {
+                            return Some(right);
+                        }
+                    }
                     None => return Some(left),
                 }
             }

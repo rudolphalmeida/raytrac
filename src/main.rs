@@ -1,21 +1,12 @@
-extern crate cgmath;
-extern crate indicatif;
-extern crate rand;
-extern crate rayon;
-
-extern crate raytrac;
-
-use raytrac::*;
-
-use materials::dielectric::Dielectric;
-use materials::lambertian::Lambertian;
-use materials::light::DiffuseLight;
-use materials::metal::Metal;
-use materials::Material;
-use objects::camera::Camera;
-use objects::sphere::Sphere;
-use objects::HittableList;
-use scene::Scene;
+use raytrac::materials::dielectric::Dielectric;
+use raytrac::materials::lambertian::Lambertian;
+use raytrac::materials::light::DiffuseLight;
+use raytrac::materials::metal::Metal;
+use raytrac::materials::Material;
+use raytrac::objects::camera::Camera;
+use raytrac::objects::sphere::Sphere;
+use raytrac::objects::HittableList;
+use raytrac::scene::Scene;
 
 use cgmath::prelude::*;
 use cgmath::Point3;

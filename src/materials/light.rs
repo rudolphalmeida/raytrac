@@ -1,9 +1,9 @@
-use materials::Scatterable;
-use objects::HitRecord;
-use ray::Ray;
-use textures::constant_texture::ConstantTexture;
-use textures::Texture;
-use textures::Textured;
+use crate::materials::Scatterable;
+use crate::objects::HitRecord;
+use crate::ray::Ray;
+use crate::textures::constant_texture::ConstantTexture;
+use crate::textures::Texture;
+use crate::textures::Textured;
 
 use cgmath::Vector3;
 

@@ -1,5 +1,5 @@
-use objects::HitRecord;
-use ray::Ray;
+use crate::objects::HitRecord;
+use crate::ray::Ray;
 
 pub mod dielectric;
 pub mod lambertian;
@@ -56,7 +56,8 @@ fn point_in_unit_sphere() -> Vector3<f64> {
         2.0 * random::<f64>() - 1.0,
         2.0 * random::<f64>() - 1.0,
         2.0 * random::<f64>() - 1.0,
-    ).normalize()
+    )
+    .normalize()
 }
 
 fn reflect(v: Vector3<f64>, n: Vector3<f64>) -> Vector3<f64> {

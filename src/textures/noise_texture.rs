@@ -26,7 +26,7 @@ impl Perlin {
     fn perlin_generate() -> Vec<Vector3<f64>> {
         let mut rng = thread_rng();
         let mut p: Vec<Vector3<f64>> = Vec::with_capacity(256);
-        for i in 0..256 {
+        for _i in 0..256 {
             p.push(
                 vec3::<f64>(
                     -1.0 + 2.0 * rng.gen::<f64>(),
@@ -95,7 +95,7 @@ impl Perlin {
         let mut accum = 0.0;
         let mut temp_p = p;
         let mut weight = 1.0;
-        for i in 0..depth {
+        for _i in 0..depth {
             accum += weight * self.noise(temp_p);
             weight *= 0.5;
             temp_p *= 2.0;

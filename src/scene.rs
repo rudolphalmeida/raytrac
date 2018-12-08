@@ -1,10 +1,10 @@
-use bvh::BvhTree;
-use io::write::write_img;
-use materials::Scatterable;
-use objects::camera::Camera;
-use objects::Hittable;
-use objects::HittableList;
-use ray::Ray;
+use crate::bvh::BvhTree;
+use crate::io::write::write_img;
+use crate::materials::Scatterable;
+use crate::objects::camera::Camera;
+use crate::objects::Hittable;
+use crate::objects::HittableList;
+use crate::ray::Ray;
 
 use cgmath::vec3;
 use cgmath::Vector3;
@@ -69,10 +69,12 @@ impl<'a> Scene<'a> {
                         color_vector /= self.samples as f64;
                         color_vector = color_vector.map(|x| x.sqrt()) * 255.99;
                         color_vector
-                    }).collect();
+                    })
+                    .collect();
                 progressbar.inc(1);
                 row
-            }).collect();
+            })
+            .collect();
 
         progressbar.finish();
 

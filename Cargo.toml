@@ -2,6 +2,7 @@
 name = "raytrac"
 version = "0.1.0"
 authors = ["Rudolph Almeida <rudolf1.almeida@gmail.com>"]
+edition = "2018"
 
 [dependencies]
 cgmath = "*"

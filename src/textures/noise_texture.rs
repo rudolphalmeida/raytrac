@@ -32,7 +32,8 @@ impl Perlin {
                     -1.0 + 2.0 * rng.gen::<f64>(),
                     -1.0 + 2.0 * rng.gen::<f64>(),
                     -1.0 + 2.0 * rng.gen::<f64>(),
-                ).normalize(),
+                )
+                .normalize(),
             );
         }
 
@@ -82,8 +83,8 @@ impl Perlin {
             for dj in 0..2 {
                 for dk in 0..2 {
                     c[di][dj][dk] = self.ranvec[self.perm_x[(i as usize + di) & 255]
-                                                    ^ self.perm_y[(j as usize + dj) & 255]
-                                                    ^ self.perm_z[(k as usize + dk) & 255]];
+                        ^ self.perm_y[(j as usize + dj) & 255]
+                        ^ self.perm_z[(k as usize + dk) & 255]];
                 }
             }
         }

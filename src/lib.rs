@@ -1,9 +1,3 @@
-extern crate cgmath;
-extern crate image;
-extern crate indicatif;
-extern crate rand;
-extern crate rayon;
-
 pub mod aabb;
 pub mod bvh;
 pub mod io;
